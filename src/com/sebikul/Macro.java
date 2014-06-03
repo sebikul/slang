@@ -7,12 +7,24 @@ import java.util.HashMap;
 
 public class Macro extends Program {
 
+    private final String name;
+    private final int paramCount;
 
-    public Macro(String program) {
+    public Macro(String name, int paramCount, String program) {
         super(program);
+        this.name = name;
+        this.paramCount = paramCount;
     }
 
-    private void resetValues() {
+    public int getParamCount() {
+        return paramCount;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void resetValues() {
 
         hasRun = false;
         variables = new HashMap<String, Variable>();

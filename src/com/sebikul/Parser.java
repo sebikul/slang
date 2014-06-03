@@ -13,7 +13,7 @@ public class Parser {
     public static final String INSTRUCCION_INCDEC_MATCH = "(\\[[A-Z][0-9]*\\])?\\s?(Y|(X|Z)[0-9]*)\\s(\\<\\-)\\s(Y|(X|Z)[0-9]*)\\s(\\+|\\-)\\s(1)";
     public static final String INSTRUCCION_GOTO_MATCH = "(\\[[A-Z][0-9]*\\])?\\s?IF\\s(Y|(X|Z)[0-9]*)\\s(\\!\\=)\\s(0)\\sGOTO\\s([A-Z][0-9]*)";
     public static final String INSTRUCCION_LABEL_MATCH = "\\[[A-Z][0-9]*\\]";
-    public static final String INSTRUCCION_MACRO_MATCH = "[A-Z]+\\((Y|(X|Z)[0-9]*)+(,(Y|(X|Z)[0-9]*))*\\)";
+    public static final String INSTRUCCION_MACRO_MATCH = "(\\[[A-Z][0-9]*\\])?\\s?(Y|(X|Z)[0-9]*)\\s(\\<\\-)\\s[A-Z]+\\((Y|(X|Z)[0-9]*)+(,(Y|(X|Z)[0-9]*))*\\)";
 
     public static final String INSTRUCCION_VAR_MATCH = "(Y|(X|Z)[0-9]*)";
 
@@ -79,13 +79,18 @@ public class Parser {
                 varName = lineParts[offset];
             }
 
-            String macroName = lineParts[2 + offset];
+            String macroName = lineParts[2 + offset].substring(0, lineParts[2 + offset].indexOf("("));
 
             Macro macro = macros.get(macroName);
 
             String parametersString = line.substring(line.indexOf("(") + 1, line.indexOf(")"));
             String[] parametersArray = parametersString.split(",");
-            HashMap<String, Variable> macroParams = new HashMap<String, Variable>(parametersArray.length);
+
+            if (macro == null || parametersArray.length != macro.getParamCount()) {
+                throw new InstruccionIlegalException(line);
+            }
+
+            HashMap<String, Variable> macroParams = new HashMap<String, Variable>();
 
             for (String paramName : parametersArray) {
                 Variable paramVar = getVariable(paramName, variables);
@@ -95,7 +100,7 @@ public class Parser {
             instruction = new Instruction(type, label, getVariable(varName, variables), macro, macroParams);
 
         } else {
-            throw new Exception("Instruccion invalida");
+            throw new InstruccionIlegalException(line);
         }
 
         assert type != 0;

@@ -94,6 +94,8 @@ public class Instruction {
 
                 variable.setValue(macroResult);
 
+                macro.resetValues();
+
                 break;
 
 

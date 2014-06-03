@@ -4,6 +4,7 @@ import com.sebikul.exceptions.HasNotRunException;
 import com.sebikul.exceptions.InstruccionIlegalException;
 import com.sebikul.exceptions.InvalidVariableNameException;
 
+import javax.crypto.Mac;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,8 +18,24 @@ public class Program {
     private int nextInstruction = 0;
     private HashMap<String, Macro> macros = new HashMap<String, Macro>();
 
+    public Program(String program, ArrayList<Macro> macros) {
+
+        if (macros != null) {
+            for (Macro macro : macros) {
+                this.addMacro(macro);
+            }
+        }
+
+
+        parseProgram(program);
+    }
+
     public Program(String program) {
 
+
+    }
+
+    private void parseProgram(String program) {
         for (String line : program.split("\n")) {
 
             Instruction instruction = null;
@@ -35,19 +52,18 @@ public class Program {
             }
 
         }
-
     }
 
     public HashMap<String, Macro> getMacros() {
         return macros;
     }
 
-    public void addMacro(String name, Macro macro) {
+    public void addMacro(Macro macro) {
         if (macro == null) {
             return;
         }
 
-        macros.put(name, macro);
+        macros.put(macro.getName(), macro);
     }
 
     public final void jump(String label) {
